@@ -1,16 +1,16 @@
-// the imports required
-import model.{OrderForProcessing, OrderInProcess}
+package etl.transformation
 
-import java.time.temporal.ChronoUnit
-import scala.io.Source
-import scala.math.BigDecimal.RoundingMode
-import java.sql.{Connection, Date, DriverManager, PreparedStatement, Timestamp}
-import java.time.LocalDateTime
+import model.{OrderInProcess, ProcessedOrder}
+
+import java.sql.{Date, Timestamp}
+import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
-import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.UUID
+import javax.inject.Qualifier
 
-object Main extends App{
+case object OrderProcessing{
+// First: Some functions that we will need later in the trasnformation process
   // a function that takes the ISO date formate and convert it into timestamp
   def stringToTimestamp(isoString: String): Timestamp = {
     val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -32,57 +32,21 @@ object Main extends App{
     ChronoUnit.DAYS.between(start, end)
   }
 
-  //||||||||||||||||||||||||||||||||||||EXTRACTION||||||||||||||||||||||||||||||||||||
-  // reading the data into a list of orders to be processed
-  val lines = Source.fromFile("src/main/scala/resources/TRX1000.csv").getLines().toList.tail
-//  val person = Person("John", 30)
-  //converting the lines into order for processing object
-    val ordersForProcessing = lines.map{ l =>
-      val line = l.split(',').map(_.trim) // Split once and trim whitespace
-      OrderForProcessing(
-        line.headOption.getOrElse(""),
-        line.lift(1).getOrElse(""),
-        line.lift(2).getOrElse(""),
-        line.lift(3).getOrElse("").toInt,
-        line.lift(4).getOrElse("").toDouble,
-        line.lift(5).getOrElse(""),
-        line.lift(6).getOrElse("")
-      )
-    }
-//  ||||||||||||||||||||||||||||||||||||TRANSFORMATION||||||||||||||||||||||||||||||||||||
-//  converting the ordersForProcessing to ordersInProcess and giving it an ID
-  val ordersInProcess = ordersForProcessing.map{ order =>
-    val id = UUID.randomUUID()
-    OrderInProcess(
-      orderId = id,
-      orderTimestamp = order.orderTimestamp,
-      productName = order.productName,
-      expiryDate = order.expiryDate,
-      quantity = order.quantity,
-      unitPrice = order.unitPrice,
-      channel = order.channel,
-      paymentMethod = order.paymentMethod
-    )
-  }
-
-  //*******************************************
-  // now with the Qualifiers and Calculators
-  //*******************************************
-
+// Second The Qualifiers and Calculators
   // expiry discount check
   // a function that checks the difference in days between order date and expiry date
-  def expiryDiscountQualifier(l: String): Boolean = {
-    val orderDate = l.split(',')(0).substring(0, 10)
-    val expiryDate = l.split(',')(2).substring(0, 10)
+  def expiryDiscountQualifier(l: OrderInProcess): Boolean = {
+    val orderDate = l.orderTimestamp
+    val expiryDate = l.expiryDate
     val daysDiff = getDateDifference(orderDate, expiryDate)
-//    val isQualified = if(daysDiff<=29) true else false
+    //    val isQualified = if(daysDiff<=29) true else false
     val isQualified = daysDiff <= 29
     return isQualified
   }
   // a function that calculates the discount based on the difference between order date and expiry date
-  def expiryDiscountCalculator(l: String): Double = {
-    val orderDate = l.split(',')(0).substring(0, 10)
-    val expiryDate = l.split(',')(2).substring(0, 10)
+  def expiryDiscountCalculator(l: OrderInProcess): Double = {
+    val orderDate = l.orderTimestamp
+    val expiryDate = l.expiryDate
     val daysDiff = getDateDifference(orderDate, expiryDate)
     val discount = daysDiff match {
       case 29 => 0.01
@@ -95,8 +59,8 @@ object Main extends App{
 
   // day discount check
   // a function to check the day and see if it matches any specific day were discounts are on (like march 23rd)
-  def dayDiscountQualifier(l: String): Boolean = {
-    val day = l.split(',')(0)
+  def dayDiscountQualifier(l: OrderInProcess): Boolean = {
+    val day = l.orderTimestamp
     val isQualified = day.substring(0, 10) match {
       case "2023-03-23" => true
       case _ => false
@@ -104,8 +68,8 @@ object Main extends App{
     return isQualified
   }
   // a function to calculate discount based on the business rules for that day
-  def dayDiscountCalculator(l: String): Double = {
-    val day = l.split(',')(0)
+  def dayDiscountCalculator(l: OrderInProcess): Double = {
+    val day = l.orderTimestamp
     val discount = day.substring(0, 10) match {
       case "2023-03-23" => 0.5
       case _ => 0.0
@@ -115,8 +79,8 @@ object Main extends App{
 
   // product type discount check
   // a function that checks the product type and see if it matches any of the discounted ones
-  def productTypeQualifier(l: String): Boolean = {
-    val productType = l.split(',')(1).split('-')(0).trim
+  def productTypeQualifier(l: OrderInProcess): Boolean = {
+    val productType = l.productName.split('-')(0).trim
     val isQualified = productType match {
       case "Cheese" => true
       case "Wine" => true
@@ -125,8 +89,8 @@ object Main extends App{
     return isQualified
   }
   // a function that checks the product type and see if it matches any of the discounted ones
-  def productTypeCalculator(l: String): Double = {
-    val productType = l.split(',')(1).split('-')(0).trim
+  def productTypeCalculator(l: OrderInProcess): Double = {
+    val productType = l.productName.split('-')(0).trim
     val discount = productType match {
       case "Cheese" => 0.1
       case "Wine" => 0.05
@@ -137,8 +101,8 @@ object Main extends App{
 
   // quality discount check
   // a function that checks if the quantity ordered is enough to get a discount
-  def quantityDiscountQualifier(l: String): Boolean = {
-    val quantity = l.split(',')(3).toInt
+  def quantityDiscountQualifier(l: OrderInProcess): Boolean = {
+    val quantity = l.quantity
     val isQualified = quantity match {
       case quantity if quantity >= 6 && quantity < 10 => true
       case quantity if quantity >= 10 && quantity < 15 => true
@@ -148,8 +112,8 @@ object Main extends App{
     return isQualified
   }
   // a function that checks if the quantity ordered is enough to get a discount
-  def quantityDiscountCalculator(l: String): Double = {
-    val quantity = l.split(',')(3).toInt
+  def quantityDiscountCalculator(l: OrderInProcess): Double = {
+    val quantity = l.quantity
     val discount = quantity match {
       case quantity if quantity >= 6 && quantity < 10 => 0.05
       case quantity if quantity >= 10 && quantity < 15 => 0.07
@@ -159,24 +123,60 @@ object Main extends App{
     return discount
   }
 
+  // putting the qualifiers and calculators in a rules tuple
+  // Define a type alias for the discount rules
+  type Rule = (OrderInProcess => Boolean, OrderInProcess => Double)
 
-
-
-  // and now putting things together
-  // so now, what we want is: tuple of functions ()
-  def getOrdersWithDiscount(order: String, rules: (String => Boolean, String => Double)): String = {
-    val discount = rules.
-    "wtf"
-  }
-
-  def getDiscountRules(): List[(String => Boolean,String => Double)] = {
-    List(
+  //=================================================================================
+  // ||||||||||||||||||||||Please ADD YOUR DISCOUNT RULES HERE!||||||||||||||||||||||
+  //=================================================================================
+  // a function where we add buiness rules and get a list of tuples of functions,
+  // List[(qualifier, calculator)]
+  def getDiscountRules(): List[Rule] = {
+    val rules: List[Rule] = {
+      List(
       (expiryDiscountQualifier, expiryDiscountCalculator),
       (dayDiscountQualifier, dayDiscountCalculator),
       (productTypeQualifier, productTypeCalculator),
       (quantityDiscountQualifier, quantityDiscountCalculator)
-    )
+      )
+    }
+    return rules
   }
+  // Function to filter rules based on qualifier function
+  //  def filterRules(input: String, rules: List[Rule]): List[Rule] = {
+  //    rules.filter { case (qualifier, _) => qualifier(input) }
+  //  }
 
-//  val ordersWithDiscount = getDiscount
+  // and now putting things together
+  // so now, what we want is: tuple of functions ()
+  def getOrdersWithDiscount(order: OrderInProcess, rules: List[Rule]): ProcessedOrder = {
+    val qualifiedRules = rules.filter{ case (qualifier,_) => qualifier(order)}
+    // if the order is qualified for only one order will calculate it's discount
+    // if an order is qualified for more than one rule, take the top 2 discounts
+    // else the discount will be 0
+    val finalDiscount: Double = if(qualifiedRules.length >= 2) {
+      val discounts = qualifiedRules.map { case (_, calculator) => calculator(order) }.sorted.reverse.take(2)
+      (discounts.head + discounts(1)) / 2
+    } else if (qualifiedRules.length == 1){
+      val discounts = qualifiedRules.map { case (_, calculator) => calculator(order) }
+      discounts.head
+    } else {
+      0.0
+    }
+    val processedOrder = ProcessedOrder(
+      order.orderId,
+      order.orderTimestamp,
+      order.productName,
+      order.expiryDate,
+      order.quantity,
+      order.unitPrice,
+      finalDiscount,
+      order.quantity * order.unitPrice,
+      finalDiscount,
+      (order.quantity * order.unitPrice) * finalDiscount,
+      order.channel,
+      order.paymentMethod)
+    processedOrder
+  }
 }
