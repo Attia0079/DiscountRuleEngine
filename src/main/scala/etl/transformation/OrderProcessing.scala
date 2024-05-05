@@ -1,13 +1,11 @@
 package etl.transformation
 
 import model.{OrderInProcess, ProcessedOrder}
-
 import java.sql.{Date, Timestamp}
 import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.UUID
-import javax.inject.Qualifier
+import scala.math.BigDecimal.RoundingMode
 
 case object OrderProcessing{
 // First: Some functions that we will need later in the trasnformation process
@@ -150,7 +148,7 @@ case object OrderProcessing{
 
   // and now putting things together
   // so now, what we want is: tuple of functions ()
-  def getOrdersWithDiscount(order: OrderInProcess, rules: List[Rule]): ProcessedOrder = {
+  def processOrders(order: OrderInProcess, rules: List[Rule]): ProcessedOrder = {
     val qualifiedRules = rules.filter{ case (qualifier,_) => qualifier(order)}
     // if the order is qualified for only one order will calculate it's discount
     // if an order is qualified for more than one rule, take the top 2 discounts
@@ -171,12 +169,18 @@ case object OrderProcessing{
       order.expiryDate,
       order.quantity,
       order.unitPrice,
-      finalDiscount,
-      order.quantity * order.unitPrice,
-      finalDiscount,
-      (order.quantity * order.unitPrice) * finalDiscount,
+      round(order.unitPrice * order.quantity, 2),
+      round(finalDiscount, 2),
+      round((order.quantity * order.unitPrice) * finalDiscount, 2),
+      round((order.quantity * order.unitPrice) * (1- finalDiscount), 2),
       order.channel,
       order.paymentMethod)
     processedOrder
   }
+
+  //a function to round numbers
+  def round(number: Double, decimalPlaces: Int): Double = {
+    BigDecimal(number).setScale(decimalPlaces, RoundingMode.HALF_UP).toDouble
+  }
 }
+
