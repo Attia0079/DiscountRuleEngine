@@ -9,6 +9,5 @@ object Main {
     val ordersForProcessing = parseOrdersForProcessing("src/main/scala/resources/TRX1000.csv")
     val processedOrders = ordersForProcessing.map(order => processOrders(order, discountRules))
     processedOrders.foreach(println)
-
   }
 }
