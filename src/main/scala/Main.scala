@@ -1,5 +1,5 @@
 // the imports required
-import models.{OrderForProcessing, OrderInProcess}
+import model.{OrderForProcessing, OrderInProcess}
 
 import java.time.temporal.ChronoUnit
 import scala.io.Source
