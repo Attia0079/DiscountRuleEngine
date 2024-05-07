@@ -16,3 +16,5 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % "3.4.0",
   "org.apache.spark" %% "spark-sql" % "3.4.0"
 )
+
+libraryDependencies += "org.postgresql" % "postgresql" % "42.2.23"

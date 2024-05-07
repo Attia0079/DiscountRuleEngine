@@ -1,10 +1,8 @@
 package etl.transformation
 
 import model.{DiscountRule, OrderForProcessing, OrderInProcess, ProcessedOrder}
-
 import java.util.UUID
 import scala.math.BigDecimal.RoundingMode
-
 case object OrderProcessing{
 
 
@@ -43,7 +41,6 @@ case object OrderProcessing{
         order.channel,
         order.paymentMethod
       )
-
   }
 
   // and now putting things together
@@ -82,7 +79,5 @@ case object OrderProcessing{
       orderInProcess.paymentMethod)
     processedOrder
   }
-
-
 }
 

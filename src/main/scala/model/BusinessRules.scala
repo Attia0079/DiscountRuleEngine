@@ -154,7 +154,7 @@ case class DiscountRules() {
 
   // a function to calculate the difference between 2 dates(string), it will be used later to check the days left for expiry (checkExpiry)
   def getDateDifference(startDate: String, endDate: String): Long = {
-    val start = LocalDate.parse(startDate)
+    val start = LocalDate.parse(startDate.substring(0, 10))
     val end = LocalDate.parse(endDate)
     ChronoUnit.DAYS.between(start, end)
   }

@@ -9,7 +9,7 @@ case object CSVParser{
     lines.map { l =>
       val line = l.split(',').map(_.trim) // Split once and trim whitespace
       OrderForProcessing(
-        line.headOption.map(_.substring(0, 10)).getOrElse(""),
+        line.headOption.getOrElse(""),
         line.lift(1).getOrElse(""),
         line.lift(2).getOrElse(""),
         line.lift(3).getOrElse("").toInt,
