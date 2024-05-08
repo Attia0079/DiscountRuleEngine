@@ -7,7 +7,7 @@ object Main {
   def main(args: Array[String]): Unit = {
 
     val discountRules = new DiscountRules().allDiscountRules()
-    val ordersForProcessing = parseOrdersForProcessing("src/main/scala/resources/TRX1000.csv")
+    val ordersForProcessing = parseOrdersForProcessing("src/main/scala/resources/orders_data.csv")
     val processedOrders = ordersForProcessing.map(order => processOrders(order, discountRules))
     processedOrders.foreach(println)
 
