@@ -127,7 +127,42 @@ case class DiscountRules() {
     return discount
   }
 
+  // app orders discount
+  // a function to check if the order was made through the application
+  def AppOrdersDiscountQualifier(l: OrderInProcess): Boolean = {
+    val payment_method = l.channel
+    val isQualified = if (payment_method == "App") true
+    else false
+    isQualified
+  }
 
+  // a function to calculate the discount if the order was made through the application
+  def AppOrdersDiscountCalculator(l: OrderInProcess): Double = {
+   val payment_method = l.channel
+    val discount = if (payment_method == "App") {
+      val discountPct = Math.ceil(l.quantity)
+      discountPct/100.0
+    } else 0
+    discount
+  }
+
+
+  // payment channel discount check
+  // a function to check if the payment channel of the order is visa
+  def paymentChannelQualifier(l: OrderInProcess): Boolean = {
+    val paymentChannel = l.paymentMethod
+    val isQualified = if (paymentChannel == "Visa") true
+    else false
+    isQualified
+  }
+
+  // a function to calculate the discount if the payment channel of the order is visa
+  def paymentChannelCalculator(l: OrderInProcess): Double = {
+    val paymentChannel = l.paymentMethod
+    val discount = if (paymentChannel == "Visa") 0.05
+    else 0
+    discount
+  }
 
   //custom functions needed for the validation process
   // a function to calculate the difference between 2 dates(string), it will be used later to check the days left for expiry (checkExpiry)
@@ -136,4 +171,5 @@ case class DiscountRules() {
     val end = LocalDate.parse(endDate)
     ChronoUnit.DAYS.between(start, end)
   }
+
 }
