@@ -64,6 +64,7 @@ case object OrderProcessing{
       else {
         0.0
       }
+
     val processedOrder = ProcessedOrder(
       orderInProcess.orderId,
       orderInProcess.orderTimestamp,
