@@ -1,11 +1,12 @@
 package etl.transformation
 
+import com.typesafe.scalalogging.Logger
 import model.{DiscountRule, OrderForProcessing, OrderInProcess, ProcessedOrder}
 import java.util.UUID
 import scala.math.BigDecimal.RoundingMode
 case object OrderProcessing{
 
-
+  private val logger = Logger(getClass.getName)
 
   //a function to round numbers
   def round(number: Double, decimalPlaces: Int): Double = {
@@ -15,7 +16,7 @@ case object OrderProcessing{
   //  converting the ordersForProcessing to ordersInProcess and giving it an ID
   def prepareOrders(order: OrderForProcessing): OrderInProcess = {
       val id = UUID.randomUUID()
-      OrderInProcess(
+      val orderInProcess = OrderInProcess(
         id,
         order.orderTimestamp,
         order.productName,
@@ -25,6 +26,8 @@ case object OrderProcessing{
         order.channel,
         order.paymentMethod
       )
+    logger.debug(s"Order prepared: $orderInProcess")
+    orderInProcess
   }
 
   // this function takes an order for processing and returns a processed order
@@ -62,6 +65,7 @@ case object OrderProcessing{
       round((orderInProcess.quantity * orderInProcess.unitPrice) * (1- finalDiscount), 2),
       orderInProcess.channel,
       orderInProcess.paymentMethod)
+    logger.info(s"Order processed: $processedOrder")
     processedOrder
   }
 }

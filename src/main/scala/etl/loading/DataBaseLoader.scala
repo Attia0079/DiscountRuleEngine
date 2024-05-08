@@ -1,5 +1,6 @@
 package etl.loading
 
+import com.typesafe.scalalogging.Logger
 import model.ProcessedOrder
 import java.sql.{Connection, Date, DriverManager, Timestamp}
 import java.time.{LocalDate, LocalDateTime}
@@ -7,16 +8,24 @@ import java.time.format.DateTimeFormatter
 
 case object DataBaseLoader{
 
+  private val logger = Logger(getClass.getName)
+
   // Function to establish a database connection
   def getConnection(url: String, user: String, password: String): Connection = {
-    DriverManager.getConnection(url, user, password)
+    val conn = DriverManager.getConnection(url, user, password)
+    logger.debug("Database connection established")
+    conn
   }
 
   // Function to insert a record into the database
   def insertRecord(connection: Connection, order: ProcessedOrder): Unit = {
-    val sql = "INSERT INTO orders (order_id, order_date, product_name, expiry_date, unit_price, quantity, price_before_discount, discount, discount_value, final_price, channel, payment_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    try{
+    val sqlQuery = """
+    INSERT INTO orders
+    (order_id, order_date, product_name, expiry_date, unit_price, quantity, price_before_discount, discount, discount_value, final_price, channel, payment_method)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
-    val preparedStatement = connection.prepareStatement(sql)
+    val preparedStatement = connection.prepareStatement(sqlQuery)
 
     preparedStatement.setString(1, (order.orderId).toString) // product name
     preparedStatement.setTimestamp(2, stringToTimestamp(order.orderTimestamp)) //order date
@@ -32,7 +41,13 @@ case object DataBaseLoader{
     preparedStatement.setString(12, order.paymentMethod) // payment method
 
     preparedStatement.executeUpdate()
-    preparedStatement.close()
+    logger.info(s"Record inserted successfully: $order")
+      }
+    catch {
+      case ex: Exception =>
+        logger.error(s"Error occurred while inserting record: $order", ex)
+    } finally {
+    }
   }
 
   // a function that takes the ISO date format and convert it into timestamp

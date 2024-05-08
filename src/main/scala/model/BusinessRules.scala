@@ -1,8 +1,5 @@
 package model
-
-import java.sql.{Date, Timestamp}
 import java.time.{LocalDate, LocalDateTime}
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 //case class BusinessRules()
