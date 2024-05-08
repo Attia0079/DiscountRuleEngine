@@ -12,22 +12,6 @@ case object OrderProcessing{
     BigDecimal(number).setScale(decimalPlaces, RoundingMode.HALF_UP).toDouble
   }
 
-// Second The Qualifiers and Calculators
-
-
-
-  // putting the qualifiers and calculators in a rules tuple
-  // Define a type alias for the discount rules
-//  type Rule = (OrderInProcess => Boolean, OrderInProcess => Double)
-
-  //=================================================================================
-  // ||||||||||||||||||||||Please ADD YOUR DISCOUNT RULES HERE!||||||||||||||||||||||
-  //=================================================================================
-  // a function where we add business rules and get a list of tuples of functions,
-  // List[(qualifier, calculator)]
-
-
-
   //  converting the ordersForProcessing to ordersInProcess and giving it an ID
   def prepareOrders(order: OrderForProcessing): OrderInProcess = {
       val id = UUID.randomUUID()
@@ -43,8 +27,8 @@ case object OrderProcessing{
       )
   }
 
-  // and now putting things together
-  // so now, what we want is: tuple of functions ()
+  // this function takes an order for processing and returns a processed order
+  // it first gives it an ID
   def processOrders(order: OrderForProcessing, rules: List[DiscountRule]): ProcessedOrder = {
     val orderInProcess = prepareOrders(order)
     val qualifiedRules = rules.filter(r => r.qualifier(orderInProcess))
