@@ -23,8 +23,6 @@ object Main {
       val processedOrders = ordersForProcessing.map(order => processOrders(order, discountRules))
       logger.debug("Orders processed Successfully")
 
-//      processedOrders.foreach(println)
-
 
       val url = "jdbc:postgresql://172.18.59.118:5432/sales_mart"
       val user = "root"

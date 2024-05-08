@@ -10,28 +10,41 @@ case class DiscountRules() {
     expiryDaysLeftDiscount,
     productTypeDiscount,
     specialDayDiscount,
-    quantityDiscount
+    quantityDiscount,
+    AppOrdersDiscount,
+    paymentChannelDiscount
   )
 
   val expiryDaysLeftDiscount = new DiscountRule(
-    description = "if the days are 29 days or less give 1% or more discount",
+    description = "if the days are 29 days or less give 1% discount for each day",
     qualifier = expiryDiscountQualifier,
     calculator = expiryDiscountCalculator
   )
   val productTypeDiscount = new DiscountRule(
-    description = "if product is discounted",
+    description = "if the product is cheese then 10% discount, if wine then 5% ",
     qualifier = productTypeQualifier,
     calculator = productTypeCalculator
   )
   val specialDayDiscount = new DiscountRule(
-    description = "If the day is any special for a discount",
+    description = "if the order day is a special day like march 23rd then 50% discount! ",
     qualifier = dayDiscountQualifier,
     calculator = dayDiscountCalculator
   )
   val quantityDiscount = new DiscountRule(
-    description = "If the quantity is enough to get a discount",
+    description = "If the quantity is enough to get a discount 6+",
     qualifier = quantityDiscountQualifier,
     calculator = quantityDiscountCalculator
+  )
+  val AppOrdersDiscount = new DiscountRule(
+    description = "If the order was made through the application an extra discount is given depending on the quantity",
+    qualifier = AppOrdersDiscountQualifier,
+    calculator = AppOrdersDiscountCalculator
+  )
+
+  val paymentChannelDiscount = new DiscountRule(
+    description = "going paperless and paying via VISA gives an extra 5% discount",
+    qualifier = paymentChannelDiscountQualifier,
+    calculator = paymentChannelDiscountCalculator
   )
 
 
@@ -138,18 +151,31 @@ case class DiscountRules() {
 
   // a function to calculate the discount if the order was made through the application
   def AppOrdersDiscountCalculator(l: OrderInProcess): Double = {
-   val payment_method = l.channel
+    val payment_method = l.channel
+    val q = l.quantity
+
+    // Round up quantity to the nearest multiple of 5
+    val roundedQuantity = ((q + 4) / 5) * 5
+
+    // Determine the discount based on the payment method and rounded quantity
     val discount = if (payment_method == "App") {
-      val discountPct = Math.ceil(l.quantity)
-      discountPct/100.0
-    } else 0
-    discount
+      if (roundedQuantity <= 5) {
+        5
+      } else {
+        ((roundedQuantity / 5) * 5).toDouble
+      }
+    } else {
+      0
+    }
+
+    discount/100
   }
+
 
 
   // payment channel discount check
   // a function to check if the payment channel of the order is visa
-  def paymentChannelQualifier(l: OrderInProcess): Boolean = {
+  def paymentChannelDiscountQualifier(l: OrderInProcess): Boolean = {
     val paymentChannel = l.paymentMethod
     val isQualified = if (paymentChannel == "Visa") true
     else false
@@ -157,7 +183,7 @@ case class DiscountRules() {
   }
 
   // a function to calculate the discount if the payment channel of the order is visa
-  def paymentChannelCalculator(l: OrderInProcess): Double = {
+  def paymentChannelDiscountCalculator(l: OrderInProcess): Double = {
     val paymentChannel = l.paymentMethod
     val discount = if (paymentChannel == "Visa") 0.05
     else 0
