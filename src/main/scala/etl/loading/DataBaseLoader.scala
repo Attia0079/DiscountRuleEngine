@@ -22,7 +22,7 @@ case object DataBaseLoader{
     try{
     val sqlQuery = """
     INSERT INTO orders
-    (order_id, order_date, product_name, expiry_date, unit_price, quantity, price_before_discount, discount, discount_value, final_price, channel, payment_method)
+    (order_id, order_date, product_name, expiry_date, quantity, unit_price, price_before_discount, discount, discount_value, final_price, channel, payment_method)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
     val preparedStatement = connection.prepareStatement(sqlQuery)

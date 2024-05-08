@@ -67,7 +67,6 @@ case class DiscountRules() {
     val orderDate = l.orderTimestamp
     val expiryDate = l.expiryDate
     val daysDiff = getDateDifference(orderDate, expiryDate)
-    //    val isQualified = if(daysDiff<=29) true else false
     val isQualified = daysDiff <= 29
     return isQualified
   }
@@ -77,12 +76,8 @@ case class DiscountRules() {
     val orderDate = l.orderTimestamp
     val expiryDate = l.expiryDate
     val daysDiff = getDateDifference(orderDate, expiryDate)
-    val discount = daysDiff match {
-      case 29 => 0.01
-      case 28 => 0.02
-      case 27 => 0.03
-      case _ => 0.0
-    }
+    val discountPct = 30.0 - daysDiff
+    val discount = discountPct/100
     return discount
   }
 
