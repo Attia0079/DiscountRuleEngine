@@ -7,6 +7,7 @@ import java.time.temporal.ChronoUnit
 
 //case class BusinessRules()
 case class DiscountRules() {
+
   // Function to create a list of all available discount rules
   def allDiscountRules(): List[DiscountRule] = List(
     expiryDaysLeftDiscount,
@@ -36,17 +37,6 @@ case class DiscountRules() {
     calculator = quantityDiscountCalculator
   )
 
-  // First: Some functions that we will need later in the trasnformation process
-  // a function that takes the ISO date formate and convert it into timestamp
-  def stringToTimestamp(isoString: String): Timestamp = {
-    val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-    val dateTime = LocalDateTime.parse(isoString, formatter)
-    Timestamp.valueOf(dateTime)
-
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  // the discount rules :D
 
   // quantity discount check
   // a function that checks if the quantity ordered is enough to get a discount
@@ -73,6 +63,7 @@ case class DiscountRules() {
     return discount
   }
 
+
   // expiry discount check
   // a function that checks the difference in days between order date and expiry date
   def expiryDiscountQualifier(l: OrderInProcess): Boolean = {
@@ -98,6 +89,7 @@ case class DiscountRules() {
     return discount
   }
 
+
   // day discount check
   // a function to check the day and see if it matches any specific day were discounts are on (like march 23rd)
   def dayDiscountQualifier(l: OrderInProcess): Boolean = {
@@ -118,6 +110,7 @@ case class DiscountRules() {
     }
     return discount
   }
+
 
   // product type discount check
   // a function that checks the product type and see if it matches any of the discounted ones
@@ -143,15 +136,8 @@ case class DiscountRules() {
   }
 
 
+
   //custom functions needed for the validation process
-
-  // Function to convert ISO formatted date string to Date
-  def stringToDate(isoString: String): Date = {
-    val formatter = DateTimeFormatter.ISO_LOCAL_DATE
-    val localDate = LocalDate.parse(isoString, formatter)
-    Date.valueOf(localDate)
-  }
-
   // a function to calculate the difference between 2 dates(string), it will be used later to check the days left for expiry (checkExpiry)
   def getDateDifference(startDate: String, endDate: String): Long = {
     val start = LocalDate.parse(startDate.substring(0, 10))
