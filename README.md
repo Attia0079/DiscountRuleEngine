@@ -79,5 +79,15 @@ In the ```BusinessRules.scala``` file, you need  to do 4 things in
 
 4. Add the newly created  ```discountRule``` object to the ``` allDiscountRules``` function
 
+   ## Screenshots:
+   ### 1. The Raw CSV 
+   ![image](https://github.com/Attia0079/DiscountRuleEngine/assets/90058837/84ef68d1-08e9-4538-bbf3-7fb693584938)
 
+   ### 2. The Output
+   ![image](https://github.com/Attia0079/DiscountRuleEngine/assets/90058837/31708dac-b479-470e-bb47-f89761344349)
+
+   ### 3. The Logs
+   ![Screenshot 2024-05-09 222914](https://github.com/Attia0079/DiscountRuleEngine/assets/90058837/a6dee5a2-f592-4ea9-ae38-f8124ff75858)
+   ![Screenshot 2024-05-09 223043](https://github.com/Attia0079/DiscountRuleEngine/assets/90058837/e5868be3-4051-44c1-8bfc-a359582dc418)
+   ![Screenshot 2024-05-09 223112](https://github.com/Attia0079/DiscountRuleEngine/assets/90058837/fa347d3d-a791-4e1a-86b4-b2d501c066a8)
 
