@@ -61,7 +61,7 @@ This project relies on the following dependencies:
 
 
 
-### To add a new Business Rule?
+## To add a new Business Rule?
 
 In the ```BusinessRules.scala``` file, you need  to do 4 things in
 
