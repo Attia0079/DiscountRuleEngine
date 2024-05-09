@@ -48,9 +48,7 @@ case object OrderProcessing{
         val discounts = qualifiedRules.map { qr => qr.calculator(orderInProcess) }
         discounts.head
       }
-      else {
-        0.0
-      }
+      else 0.0
 
     val processedOrder = ProcessedOrder(
       orderInProcess.orderId,

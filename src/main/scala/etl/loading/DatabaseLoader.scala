@@ -6,7 +6,7 @@ import java.sql.{Connection, Date, DriverManager, Timestamp}
 import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 
-case object DataBaseLoader{
+case object DatabaseLoader{
 
   private val logger = Logger(getClass.getName)
 
@@ -31,7 +31,7 @@ case object DataBaseLoader{
     preparedStatement.setTimestamp(2, stringToTimestamp(order.orderTimestamp)) //order date
     preparedStatement.setString(3, order.productName) // product name
     preparedStatement.setDate(4, stringToDate(order.expiryDate)) // expiry date
-    preparedStatement.setInt(5, order.quantity) // unit price
+    preparedStatement.setDouble(5, order.quantity) // unit price
     preparedStatement.setDouble(6, order.unitPrice) // quantity
     preparedStatement.setDouble(7, order.priceBeforeDiscount) // price before discount
     preparedStatement.setDouble(8, order.discount) // discount

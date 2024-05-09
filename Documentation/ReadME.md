@@ -10,7 +10,7 @@ The project consists of three main components:
 2. **ETL Package**: Implements the ETL (Extract, Transform, Load) process with three layers: Extraction, Transformation, and Loading.
 3. **Resources**: The CSV file that we will parse the data from.
 
-### Model Package
+## Model Package
 
 The Model Package includes the following classes:
 
@@ -20,7 +20,7 @@ The Model Package includes the following classes:
 - `DiscountRule`: A class representing business rules for discounts.
 - `DiscountRules`: A placeholder class for discount rules, including functions to qualify orders and calculate discounts.
 
-### ETL Package
+## ETL Package
 
 The ETL Package comprises three layers:
 
@@ -28,7 +28,7 @@ The ETL Package comprises three layers:
 2. **Transformation Layer**: Applies transformations to orders and calculates discounts based on business rules.
 3. **Loading Layer (Database Loader)**: Loads processed orders into a database table.
 
-### Resources
+## Resources
 
 The Resources directory contains configuration files and other resources used by the project. This may include:
 - `application.conf`: Configuration file for database connection parameters.
@@ -61,7 +61,7 @@ This project relies on the following dependencies:
 
 
 
-## To add a new Business Rule
+### To add a new Business Rule?
 
 In the ```BusinessRules.scala``` file, you need  to do 4 things in
 
