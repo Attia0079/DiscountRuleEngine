@@ -6,7 +6,7 @@ import java.sql.{Connection, Date, DriverManager, Timestamp}
 import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 
-case object DataBaseLoader{
+case object DatabaseLoader{
 
   private val logger = Logger(getClass.getName)
 

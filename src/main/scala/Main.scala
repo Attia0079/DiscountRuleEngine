@@ -1,7 +1,7 @@
 // the imports required
 import com.typesafe.scalalogging.Logger
 import etl.extraction.CSVParser.parseOrdersForProcessing
-import etl.loading.DataBaseLoader.{getConnection, insertRecord}
+import etl.loading.DatabaseLoader.{getConnection, insertRecord}
 import etl.transformation.OrderProcessing.processOrders
 import model.DiscountRules
 
